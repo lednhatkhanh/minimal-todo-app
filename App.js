@@ -1,17 +1,8 @@
 /* eslint-disable global-require */
 import React from "react";
 import { Font } from "expo";
-import { StyleSheet, View } from "react-native";
-import { Button, Text } from "native-base";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+import { AppContainer } from "~/app-container";
 
 export default class App extends React.Component {
   async componentWillMount() {
@@ -23,13 +14,6 @@ export default class App extends React.Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
-        <Text>Hello World!!!</Text>
-        <Button>
-          <Text>Nice!!</Text>
-        </Button>
-      </View>
-    );
+    return <AppContainer />;
   }
 }
