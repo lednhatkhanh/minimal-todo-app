@@ -4,7 +4,7 @@ import { Font } from "expo";
 import { StyleSheet } from "react-native";
 
 import { View, Spinner } from "native-base";
-import { AppContainer } from "~/app-container";
+import { Main } from "~/";
 
 const styles = StyleSheet.create({
   spinnerContainer: { flex: 1, display: "flex", alignItems: "center", justifyContent: "center" },
@@ -29,7 +29,7 @@ export default class App extends React.Component {
     const { fontLoaded } = this.state;
 
     return fontLoaded ? (
-      <AppContainer />
+      <Main />
     ) : (
       <View style={styles.spinnerContainer}>
         <Spinner color="blue" />

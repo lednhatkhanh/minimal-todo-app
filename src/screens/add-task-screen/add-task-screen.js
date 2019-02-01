@@ -65,7 +65,7 @@ export class AddTaskScreen extends React.Component {
     return (
       <View style={{ flex: 1, padding: 10 }}>
         <Form>
-          <Item floatingLabel>
+          <Item stackedLabel>
             <Label>Title</Label>
             <Input />
           </Item>
@@ -77,7 +77,7 @@ export class AddTaskScreen extends React.Component {
                 </>
               ) : (
                 <>
-                  <Icon name="add" />
+                  <Icon name="clock" />
                   <Text>Due Time</Text>
                 </>
               )}
@@ -115,10 +115,12 @@ export class AddTaskScreen extends React.Component {
               onCancel={this.closeDateTimePicker}
             />
           </Item>
-          <Item style={{ marginTop: 14, borderBottomWidth: 0, width: "100%" }} />
-          <Button block>
-            <Text>Add</Text>
-          </Button>
+          <Item style={{ marginTop: 40, borderBottomWidth: 0 }}>
+            <Button block>
+              <Icon name="add" />
+              <Text>Add</Text>
+            </Button>
+          </Item>
         </Form>
       </View>
     );
