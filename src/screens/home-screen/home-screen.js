@@ -1,9 +1,24 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { Title, Button, Icon, View } from "native-base";
+import { AsyncStorage } from "react-native";
+import {
+  Title,
+  Button,
+  Icon,
+  View,
+  Text,
+  Container,
+  Header,
+  Content,
+  Body,
+  Right,
+  ActionSheet,
+  Left,
+} from "native-base";
 
 import { TasksList } from "~/components/tasks-list/tasks-list";
 import { FloatButton } from "~/components/float-button/float-button";
+import { MeQuery } from "~/components/me-query";
 
 const tasks = [
   { id: "1", title: "To Do", due: "Mar 16 2016, 08:00 PM" },
@@ -68,25 +83,11 @@ const tasks = [
   },
 ];
 
+const MenuButtons = ["Logout"];
+
 export class HomeScreen extends Component {
   static propTypes = {
     navigation: PropTypes.objectOf(PropTypes.any).isRequired,
-  };
-
-  static navigationOptions = {
-    headerLeft: () => (
-      <>
-        <Button transparent>
-          <Icon name="folder" />
-          <Title>All</Title>
-        </Button>
-      </>
-    ),
-    headerRight: (
-      <Button transparent>
-        <Icon name="more" />
-      </Button>
-    ),
   };
 
   goToAddTaskScreen = () => {
@@ -96,10 +97,62 @@ export class HomeScreen extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
-        <TasksList tasks={tasks} />
-        <FloatButton onPress={this.goToAddTaskScreen} />
-      </View>
+      <MeQuery>
+        {({ data, loading, error, client }) => {
+          if (loading) {
+            return (
+              <View>
+                <Text>Loading...</Text>
+              </View>
+            );
+          }
+
+          if (error || !data || (data && !data.me)) {
+            return null;
+          }
+
+          return (
+            <Container style={{ position: "relative" }}>
+              <Header>
+                <Left>
+                  <Button transparent>
+                    <Icon name="folder" />
+                  </Button>
+                </Left>
+                <Body>
+                  <Title>All Tasks</Title>
+                </Body>
+                <Right>
+                  <Button
+                    transparent
+                    onPress={() => {
+                      ActionSheet.show(
+                        { options: MenuButtons, cancelButtonIndex: 1, title: "Menu" },
+                        async buttonIndex => {
+                          if (MenuButtons[buttonIndex] === "Logout") {
+                            await AsyncStorage.removeItem("token");
+
+                            client.resetStore().then(() => {
+                              const { navigation } = this.props;
+                              navigation.navigate("Login");
+                            });
+                          }
+                        },
+                      );
+                    }}
+                  >
+                    <Icon name="more" />
+                  </Button>
+                </Right>
+              </Header>
+              <Content padder>
+                <TasksList tasks={tasks} />
+                <FloatButton onPress={this.goToAddTaskScreen} />
+              </Content>
+            </Container>
+          );
+        }}
+      </MeQuery>
     );
   }
 }

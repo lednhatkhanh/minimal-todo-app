@@ -4,7 +4,7 @@ import { ScrollView, StyleSheet } from "react-native";
 
 import { TaskItem } from "~/components/task-item/task-item";
 
-const styles = StyleSheet.create({ container: { flex: 1, padding: 10 } });
+const styles = StyleSheet.create({ container: { flex: 1 } });
 
 export const TasksList = ({ tasks }) => (
   <ScrollView style={styles.container}>

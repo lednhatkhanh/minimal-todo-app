@@ -5,6 +5,7 @@ import { setContext } from "apollo-link-context";
 import { ApolloProvider } from "react-apollo";
 
 import { NavigatorContainer } from "./navigator-container";
+import { Root } from "native-base";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:8000/graphql",
@@ -27,7 +28,9 @@ const client = new ApolloClient({
 });
 
 export const Main = () => (
-  <ApolloProvider client={client}>
-    <NavigatorContainer />
-  </ApolloProvider>
+  <Root>
+    <ApolloProvider client={client}>
+      <NavigatorContainer />
+    </ApolloProvider>
+  </Root>
 );
