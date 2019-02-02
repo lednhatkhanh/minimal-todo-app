@@ -1,10 +1,10 @@
-import { createStackNavigator, createAppContainer } from "react-navigation";
+import { createDrawerNavigator, createAppContainer } from "react-navigation";
 
 import { HomeScreen } from "~/screens/home-screen/home-screen";
 import { AddTaskScreen } from "~/screens/add-task-screen/add-task-screen";
-import { LoginScreen } from "./screens/login-screen/login-screen";
+import { LoginScreen } from "~/screens/login-screen/login-screen";
 
-const AppNavigator = createStackNavigator(
+const AppNavigator = createDrawerNavigator(
   {
     Home: {
       screen: HomeScreen,
@@ -18,7 +18,6 @@ const AppNavigator = createStackNavigator(
   },
   {
     initialRouteName: "Home",
-    headerMode: "none",
   },
 );
 
