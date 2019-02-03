@@ -17,7 +17,7 @@ const AppNavigator = createDrawerNavigator(
     },
   },
   {
-    initialRouteName: "Home",
+    initialRouteName: "AddTask",
   },
 );
 

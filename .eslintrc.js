@@ -23,5 +23,6 @@ module.exports = {
     "import/prefer-default-export": false,
     "react/forbid-foreign-prop-types": 1,
     "react/forbid-prop-types": [1, { forbid: ["any"] }],
+    "react/jsx-wrap-multilines": 0,
   },
 };

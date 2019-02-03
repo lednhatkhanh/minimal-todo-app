@@ -1,9 +1,12 @@
 import React from "react";
-import { Input, Item, Label, Form, Button, Text, Icon, View } from "native-base";
+import PropTypes from "prop-types";
+import { Input, Item, Label, Form, Button, Text, Icon, Container, Content } from "native-base";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import moment from "moment";
 
-import { ColorPicker } from "~/components/color-picker/color-picker";
+import { ColorPicker } from "~/components/color-picker";
+import { AppHeader } from "~/components/app-header";
+import { AddTaskMutation } from "~/components/add-task-mutation";
 
 const colors = [
   "#f2a3bd",
@@ -18,12 +21,13 @@ const colors = [
 ];
 
 export class AddTaskScreen extends React.Component {
-  static navigationOptions = {
-    title: "Add Task",
+  static propTypes = {
+    navigation: PropTypes.object.isRequired,
   };
 
   state = {
-    showDateTimePicker: false,
+    showDueDateTimePicker: false,
+    showNotificationTimePicker: false,
     data: {
       title: "",
       due: null,
@@ -32,8 +36,20 @@ export class AddTaskScreen extends React.Component {
     },
   };
 
-  showDateTimePicker = () => {
-    this.setState({ showDateTimePicker: true });
+  showDueDateTimePicker = () => {
+    this.setState({ showDueDateTimePicker: true });
+  };
+
+  showNotificationTimePicker = () => {
+    this.setState({ showNotificationTimePicker: true });
+  };
+
+  closeDueDateTimePicker = () => {
+    this.setState({ showDueDateTimePicker: false });
+  };
+
+  closeNotificationTimePicker = () => {
+    this.setState({ showNotificationTimePicker: false });
   };
 
   handleDueTime = date => {
@@ -43,11 +59,17 @@ export class AddTaskScreen extends React.Component {
         due: date,
       },
     }));
-    this.closeDateTimePicker();
+    this.closeDueDateTimePicker();
   };
 
-  closeDateTimePicker = () => {
-    this.setState({ showDateTimePicker: false });
+  handleNotificationTime = date => {
+    this.setState(({ data }) => ({
+      data: {
+        ...data,
+        notification: date,
+      },
+    }));
+    this.closeNotificationTimePicker();
   };
 
   handleColor = color => {
@@ -59,70 +81,108 @@ export class AddTaskScreen extends React.Component {
     }));
   };
 
+  goToHomeScreen = () => {
+    const { navigation } = this.props;
+    navigation.navigate("Home");
+  };
+
+  handleTitleChange = value => {
+    this.setState(({ data }) => ({ data: { ...data, title: value } }));
+  };
+
   render() {
-    const { showDateTimePicker, data } = this.state;
+    const { showDueDateTimePicker, showNotificationTimePicker, data } = this.state;
+    const { navigation } = this.props;
 
     return (
-      <View style={{ flex: 1, padding: 10 }}>
-        <Form>
-          <Item stackedLabel>
-            <Label>Title</Label>
-            <Input />
-          </Item>
-          <Item style={{ marginTop: 14, borderBottomWidth: 0 }}>
-            <Button onPress={this.showDateTimePicker} rounded>
-              {data.due ? (
-                <>
-                  <Text>{moment(data.due).format("MMM DD, YYYY hh:mm A")}</Text>
-                </>
-              ) : (
-                <>
-                  <Icon name="clock" />
-                  <Text>Due Time</Text>
-                </>
-              )}
-            </Button>
-            <DateTimePicker
-              mode="datetime"
-              isVisible={showDateTimePicker}
-              onConfirm={this.handleDueTime}
-              onCancel={this.closeDateTimePicker}
+      <AddTaskMutation
+        onCompleted={() => {
+          navigation.navigate("Home");
+        }}
+      >
+        {addTaskMutation => (
+          <Container>
+            <AppHeader
+              title="Add Task"
+              leftButton={
+                <Button transparent>
+                  <Icon name="arrow-back" onPress={this.goToHomeScreen} />
+                </Button>
+              }
             />
-          </Item>
-          <ColorPicker
-            style={{ marginTop: 10 }}
-            colors={colors}
-            activeColor={data.color}
-            onChange={this.handleColor}
-          />
-          <Item style={{ marginTop: 10, borderBottomWidth: 0 }}>
-            <Button onPress={this.showDateTimePicker} rounded>
-              {data.due ? (
-                <>
-                  <Text>{moment(data.due).format("MMM DD, YYYY hh:mm A")}</Text>
-                </>
-              ) : (
-                <>
-                  <Icon name="notifications" />
-                  <Text>Notification</Text>
-                </>
-              )}
-            </Button>
-            <DateTimePicker
-              mode="datetime"
-              isVisible={showDateTimePicker}
-              onConfirm={this.handleDueTime}
-              onCancel={this.closeDateTimePicker}
-            />
-          </Item>
-          <Item style={{ marginTop: 40, borderBottomWidth: 0 }}>
-            <Button block>
-              <Icon name="add" />
-              <Text>Add</Text>
-            </Button>
-          </Item>
-        </Form>
-      </View>
+            <Content>
+              <Form>
+                <Item stackedLabel>
+                  <Label>Title</Label>
+                  <Input onChangeText={this.handleTitleChange} />
+                </Item>
+                <Item style={{ marginTop: 14, borderBottomWidth: 0 }}>
+                  <Button onPress={this.showDueDateTimePicker} rounded>
+                    {data.due ? (
+                      <>
+                        <Text>{moment(data.due).format("MMM DD, YYYY hh:mm A")}</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="clock" />
+                        <Text>Due Time</Text>
+                      </>
+                    )}
+                  </Button>
+                  <DateTimePicker
+                    titleIOS="Set due time"
+                    mode="datetime"
+                    isVisible={showDueDateTimePicker}
+                    onConfirm={this.handleDueTime}
+                    onCancel={this.closeDueDateTimePicker}
+                  />
+                </Item>
+                <ColorPicker
+                  style={{ marginTop: 10 }}
+                  colors={colors}
+                  activeColor={data.color}
+                  onChange={this.handleColor}
+                />
+                <Item style={{ marginTop: 10, borderBottomWidth: 0 }}>
+                  <Button onPress={this.showNotificationTimePicker} rounded>
+                    {data.due ? (
+                      <>
+                        <Text>{moment(data.due).format("MMM DD, YYYY hh:mm A")}</Text>
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="notifications" />
+                        <Text>Set notification</Text>
+                      </>
+                    )}
+                  </Button>
+                  <DateTimePicker
+                    titleIOS="Set notification"
+                    mode="datetime"
+                    isVisible={showNotificationTimePicker}
+                    onConfirm={this.handleNotificationTime}
+                    onCancel={this.closeNotificationTimePicker}
+                  />
+                </Item>
+                <Item style={{ marginTop: 40, borderBottomWidth: 0 }}>
+                  <Button
+                    block
+                    onPress={() => {
+                      const {
+                        data: { color, due, notification, title },
+                      } = this.state;
+                      addTaskMutation({ variables: { title, color, due, notification } });
+                    }}
+                  >
+                    <Icon name="add" />
+                    <Text>Add</Text>
+                  </Button>
+                </Item>
+              </Form>
+            </Content>
+          </Container>
+        )}
+      </AddTaskMutation>
     );
   }
 }

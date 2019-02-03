@@ -1,23 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { AsyncStorage } from "react-native";
-import {
-  View,
-  Text,
-  Container,
-  Header,
-  Left,
-  Button,
-  Icon,
-  Body,
-  Title,
-  Right,
-  ActionSheet,
-  Content,
-} from "native-base";
+import { View, Text, Container, Button, Icon, ActionSheet, Content } from "native-base";
 
 import { TasksList } from "~/components/tasks-list/tasks-list";
 import { FloatButton } from "~/components/float-button";
+import { AppHeader } from "~/components/app-header";
 
 const tasks = [
   { id: "1", title: "To Do", due: "Mar 16 2016, 08:00 PM" },
@@ -122,16 +110,14 @@ export class HomeScreenContainer extends React.PureComponent {
 
     return (
       <Container style={{ position: "relative" }}>
-        <Header>
-          <Left>
+        <AppHeader
+          title="All Tasks"
+          leftButton={
             <Button transparent>
               <Icon name="folder" />
             </Button>
-          </Left>
-          <Body>
-            <Title>All Tasks</Title>
-          </Body>
-          <Right>
+          }
+          rightButton={
             <Button
               transparent
               onPress={() => {
@@ -151,8 +137,8 @@ export class HomeScreenContainer extends React.PureComponent {
             >
               <Icon name="more" />
             </Button>
-          </Right>
-        </Header>
+          }
+        />
         <Content padder>
           <TasksList tasks={tasks} />
         </Content>

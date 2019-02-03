@@ -3,9 +3,9 @@ import { AsyncStorage } from "react-native";
 import { HttpLink, ApolloClient, InMemoryCache } from "apollo-boost";
 import { setContext } from "apollo-link-context";
 import { ApolloProvider } from "react-apollo";
+import { Root } from "native-base";
 
 import { NavigatorContainer } from "./navigator-container";
-import { Root } from "native-base";
 
 const httpLink = new HttpLink({
   uri: "http://localhost:8000/graphql",
