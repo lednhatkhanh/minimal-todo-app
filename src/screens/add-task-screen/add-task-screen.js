@@ -7,6 +7,7 @@ import moment from "moment";
 import { ColorPicker } from "~/components/color-picker";
 import { AppHeader } from "~/components/app-header";
 import { AddTaskMutation } from "~/components/add-task-mutation";
+import { GetMyTasksQueryDocument } from "~/components/get-my-tasks-query";
 
 const colors = [
   "#f2a3bd",
@@ -99,6 +100,20 @@ export class AddTaskScreen extends React.Component {
         onCompleted={() => {
           navigation.navigate("Home");
         }}
+        update={(proxy, { data: { addTask } }) => {
+          try {
+            const prevData = proxy.readQuery({ query: GetMyTasksQueryDocument });
+            proxy.writeQuery({
+              query: GetMyTasksQueryDocument,
+              data: {
+                getMyTasks: [...prevData.getMyTasks, addTask],
+              },
+            });
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+          }
+        }}
       >
         {addTaskMutation => (
           <Container>
@@ -145,9 +160,9 @@ export class AddTaskScreen extends React.Component {
                 />
                 <Item style={{ marginTop: 10, borderBottomWidth: 0 }}>
                   <Button onPress={this.showNotificationTimePicker} rounded>
-                    {data.due ? (
+                    {data.notification ? (
                       <>
-                        <Text>{moment(data.due).format("MMM DD, YYYY hh:mm A")}</Text>
+                        <Text>{moment(data.notification).format("MMM DD, YYYY hh:mm A")}</Text>
                       </>
                     ) : (
                       <>

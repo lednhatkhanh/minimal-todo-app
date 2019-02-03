@@ -1,29 +1,52 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { ScrollView, StyleSheet } from "react-native";
+import { FlatList } from "react-native";
+import { View, Text } from "native-base";
 
 import { TaskItem } from "~/components/task-item/task-item";
+import { GetMyTasksQuery } from "~/components/get-my-tasks-query";
 
-const styles = StyleSheet.create({ container: { flex: 1 } });
+function extractTaskKey(task) {
+  return task.id;
+}
 
-export const TasksList = ({ tasks }) => (
-  <ScrollView style={styles.container}>
-    {tasks.map(task => {
-      return <TaskItem key={task.id} task={task} />;
-    })}
-  </ScrollView>
-);
+export class TasksList extends React.Component {
+  state = {
+    refreshing: false,
+  };
 
-TasksList.propTypes = {
-  tasks: PropTypes.arrayOf(
-    PropTypes.shape({
-      title: PropTypes.string.isRequired,
-      due: PropTypes.string.isRequired,
-      notification: PropTypes.string,
-    }),
-  ),
-};
+  render() {
+    const { refreshing } = this.state;
 
-TasksList.defaultProps = {
-  tasks: [],
-};
+    return (
+      <GetMyTasksQuery>
+        {({ loading, data, refetch }) => {
+          if (loading) {
+            return (
+              <View>
+                <Text>Loading...</Text>
+              </View>
+            );
+          }
+
+          if (data && data.getMyTasks) {
+            return (
+              <FlatList
+                data={data.getMyTasks}
+                renderItem={({ item }) => <TaskItem task={item} />}
+                keyExtractor={extractTaskKey}
+                refreshing={refreshing}
+                onRefresh={async () => {
+                  this.setState({ refreshing: true });
+                  await refetch();
+                  this.setState({ refreshing: false });
+                }}
+              />
+            );
+          }
+
+          return null;
+        }}
+      </GetMyTasksQuery>
+    );
+  }
+}

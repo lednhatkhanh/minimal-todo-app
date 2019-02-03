@@ -7,69 +7,6 @@ import { TasksList } from "~/components/tasks-list/tasks-list";
 import { FloatButton } from "~/components/float-button";
 import { AppHeader } from "~/components/app-header";
 
-const tasks = [
-  { id: "1", title: "To Do", due: "Mar 16 2016, 08:00 PM" },
-  {
-    id: "2",
-    title: "Project List",
-    due: "Apr 12, 2017 11:30 PM",
-    notification: "Apr 12, 2017 10:00 PM",
-    color: "#f2a3bd",
-  },
-  {
-    id: "3",
-    title: "Client",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#d6d963",
-  },
-  {
-    id: "4",
-    title: "Update Presentation",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#c4adc9",
-  },
-  { id: "11", title: "To Do", due: "Mar 16 2016, 08:00 PM" },
-  {
-    id: "21",
-    title: "Project List",
-    due: "Apr 12, 2017 11:30 PM",
-    notification: "Apr 12, 2017 10:00 PM",
-    color: "#f2a3bd",
-  },
-  {
-    id: "31",
-    title: "Client",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#d6d963",
-  },
-  {
-    id: "41",
-    title: "Update Presentation",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#c4adc9",
-  },
-  { id: "12", title: "To Do", due: "Mar 16 2016, 08:00 PM" },
-  {
-    id: "22",
-    title: "Project List",
-    due: "Apr 12, 2017 11:30 PM",
-    notification: "Apr 12, 2017 10:00 PM",
-    color: "#f2a3bd",
-  },
-  {
-    id: "32",
-    title: "Client",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#d6d963",
-  },
-  {
-    id: "42",
-    title: "Update Presentation",
-    due: "Apr 12, 2017 11:30 PM",
-    color: "#c4adc9",
-  },
-];
-
 const MenuButtons = ["Logout"];
 
 export class HomeScreenContainer extends React.PureComponent {
@@ -96,7 +33,7 @@ export class HomeScreenContainer extends React.PureComponent {
 
   render() {
     const {
-      meQueryProps: { loading, client },
+      meQueryProps: { loading, client, error, data },
       navigation,
     } = this.props;
 
@@ -106,6 +43,10 @@ export class HomeScreenContainer extends React.PureComponent {
           <Text>Loading...</Text>
         </View>
       );
+    }
+
+    if (error || !data || (data && !data.me)) {
+      return null;
     }
 
     return (
@@ -139,9 +80,7 @@ export class HomeScreenContainer extends React.PureComponent {
             </Button>
           }
         />
-        <Content padder>
-          <TasksList tasks={tasks} />
-        </Content>
+        <TasksList />
         <FloatButton onPress={this.goToAddTaskScreen} />
       </Container>
     );
