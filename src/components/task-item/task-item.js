@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import PropTypes from "prop-types";
 import { Card, H3, Text, View, Icon } from "native-base";
 import moment from "moment";
@@ -17,29 +17,42 @@ const styles = StyleSheet.create({
   notification: { fontSize: 14, color: "#333" },
 });
 
-export const TaskItem = ({ task }) => {
-  return (
-    <Card style={{ ...styles.container, backgroundColor: task.color || "#6fe7db" }}>
-      <H3>{task.title}</H3>
-      {task.due && (
-        <Text style={styles.due}>{moment(task.due).format("MMM DD, YYYY hh:mm A")}</Text>
-      )}
-      {task.notification && (
-        <View style={styles.notificationContainer}>
-          <Icon style={styles.notificationIcon} name="notifications" />
-          <Text style={styles.notification}>
-            {moment(task.notification).format("MMM DD, YYYY hh:mm A")}
-          </Text>
-        </View>
-      )}
-    </Card>
-  );
-};
+export class TaskItem extends React.PureComponent {
+  static propTypes = {
+    task: PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      due: PropTypes.string,
+      notification: PropTypes.string,
+    }).isRequired,
+    onPress: PropTypes.func.isRequired,
+  };
 
-TaskItem.propTypes = {
-  task: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    due: PropTypes.string,
-    notification: PropTypes.string,
-  }).isRequired,
-};
+  onPress = () => {
+    const { onPress, task } = this.props;
+
+    onPress(task);
+  };
+
+  render() {
+    const { task } = this.props;
+
+    return (
+      <TouchableOpacity onPress={this.onPress}>
+        <Card style={{ ...styles.container, backgroundColor: task.color || "#6fe7db" }}>
+          <H3>{task.title}</H3>
+          {task.due && (
+            <Text style={styles.due}>{moment(task.due).format("MMM DD, YYYY hh:mm A")}</Text>
+          )}
+          {task.notification && (
+            <View style={styles.notificationContainer}>
+              <Icon style={styles.notificationIcon} name="notifications" />
+              <Text style={styles.notification}>
+                {moment(task.notification).format("MMM DD, YYYY hh:mm A")}
+              </Text>
+            </View>
+          )}
+        </Card>
+      </TouchableOpacity>
+    );
+  }
+}

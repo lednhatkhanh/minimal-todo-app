@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { FlatList } from "react-native";
 import { View, Text, Spinner } from "native-base";
 
@@ -10,13 +11,21 @@ function extractTaskKey(task) {
 }
 
 export class TasksList extends React.Component {
+  static propTypes = {
+    onTaskItemPress: PropTypes.func.isRequired,
+  };
+
   state = {
     refreshing: false,
     loadingMore: false,
     skip: 0,
   };
 
-  renderTaskItem = ({ item }) => <TaskItem task={item} />;
+  renderTaskItem = ({ item }) => {
+    const { onTaskItemPress } = this.props;
+
+    return <TaskItem task={item} onPress={onTaskItemPress} />;
+  };
 
   render() {
     const { refreshing, loadingMore, skip } = this.state;

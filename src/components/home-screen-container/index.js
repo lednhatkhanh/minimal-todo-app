@@ -31,6 +31,11 @@ export class HomeScreenContainer extends React.PureComponent {
     navigation.navigate("AddTask");
   };
 
+  goToTaskDetailScreen = task => {
+    const { navigation } = this.props;
+    navigation.navigate("TaskDetail", { task });
+  };
+
   render() {
     const {
       meQueryProps: { loading, client, error, data },
@@ -80,7 +85,7 @@ export class HomeScreenContainer extends React.PureComponent {
             </Button>
           }
         />
-        <TasksList />
+        <TasksList onTaskItemPress={this.goToTaskDetailScreen} />
         <FloatButton onPress={this.goToAddTaskScreen} />
       </Container>
     );
