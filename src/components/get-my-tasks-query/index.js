@@ -4,8 +4,8 @@ import { gql } from "apollo-boost";
 import { Query } from "react-apollo";
 
 export const GetMyTasksQueryDocument = gql`
-  query GetMyTasks {
-    getMyTasks {
+  query GetMyTasks($limit: Int, $skip: Int) {
+    getMyTasks(limit: $limit, skip: $skip) {
       id
       title
       owner {

@@ -1,6 +1,6 @@
 import React from "react";
 import { FlatList } from "react-native";
-import { View, Text } from "native-base";
+import { View, Text, Spinner } from "native-base";
 
 import { TaskItem } from "~/components/task-item/task-item";
 import { GetMyTasksQuery } from "~/components/get-my-tasks-query";
@@ -12,14 +12,18 @@ function extractTaskKey(task) {
 export class TasksList extends React.Component {
   state = {
     refreshing: false,
+    loadingMore: false,
+    skip: 0,
   };
 
+  renderTaskItem = ({ item }) => <TaskItem task={item} />;
+
   render() {
-    const { refreshing } = this.state;
+    const { refreshing, loadingMore, skip } = this.state;
 
     return (
       <GetMyTasksQuery>
-        {({ loading, data, refetch }) => {
+        {({ loading, data, refetch, fetchMore }) => {
           if (loading) {
             return (
               <View>
@@ -32,7 +36,7 @@ export class TasksList extends React.Component {
             return (
               <FlatList
                 data={data.getMyTasks}
-                renderItem={({ item }) => <TaskItem task={item} />}
+                renderItem={this.renderTaskItem}
                 keyExtractor={extractTaskKey}
                 refreshing={refreshing}
                 onRefresh={async () => {
@@ -40,6 +44,41 @@ export class TasksList extends React.Component {
                   await refetch();
                   this.setState({ refreshing: false });
                 }}
+                onEndReachedThreshold={0.1}
+                onEndReached={() => {
+                  if (loadingMore) {
+                    return;
+                  }
+
+                  const newSkip = skip + 20;
+
+                  this.setState({ skip: newSkip, loadingMore: true }, async () => {
+                    await fetchMore({
+                      variables: {
+                        skip: newSkip,
+                      },
+                      updateQuery(prev, { fetchMoreResult }) {
+                        if (!fetchMoreResult) {
+                          return prev;
+                        }
+
+                        return {
+                          ...prev,
+                          getMyTasks: [...prev.getMyTasks, ...fetchMoreResult.getMyTasks /* */],
+                        };
+                      },
+                    });
+
+                    this.setState({ loadingMore: false });
+                  });
+                }}
+                ListFooterComponent={
+                  loadingMore && (
+                    <View>
+                      <Spinner />
+                    </View>
+                  )
+                }
               />
             );
           }

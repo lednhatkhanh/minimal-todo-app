@@ -17,20 +17,24 @@ const styles = StyleSheet.create({
   notification: { fontSize: 14, color: "#333" },
 });
 
-export const TaskItem = ({ task }) => (
-  <Card style={{ ...styles.container, backgroundColor: task.color || "#6fe7db" }}>
-    <H3>{task.title}</H3>
-    {task.due && <Text style={styles.due}>{moment(task.due).format("MMM DD, YYYY hh:mm A")}</Text>}
-    {task.notification && (
-      <View style={styles.notificationContainer}>
-        <Icon style={styles.notificationIcon} name="notifications" />
-        <Text style={styles.notification}>
-          {moment(task.notification).format("MMM DD, YYYY hh:mm A")}
-        </Text>
-      </View>
-    )}
-  </Card>
-);
+export const TaskItem = ({ task }) => {
+  return (
+    <Card style={{ ...styles.container, backgroundColor: task.color || "#6fe7db" }}>
+      <H3>{task.title}</H3>
+      {task.due && (
+        <Text style={styles.due}>{moment(task.due).format("MMM DD, YYYY hh:mm A")}</Text>
+      )}
+      {task.notification && (
+        <View style={styles.notificationContainer}>
+          <Icon style={styles.notificationIcon} name="notifications" />
+          <Text style={styles.notification}>
+            {moment(task.notification).format("MMM DD, YYYY hh:mm A")}
+          </Text>
+        </View>
+      )}
+    </Card>
+  );
+};
 
 TaskItem.propTypes = {
   task: PropTypes.shape({

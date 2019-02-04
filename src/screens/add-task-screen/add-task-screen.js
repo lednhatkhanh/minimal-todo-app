@@ -106,7 +106,7 @@ export class AddTaskScreen extends React.Component {
             proxy.writeQuery({
               query: GetMyTasksQueryDocument,
               data: {
-                getMyTasks: [...prevData.getMyTasks, addTask],
+                getMyTasks: [addTask, ...prevData.getMyTasks],
               },
             });
           } catch (error) {
