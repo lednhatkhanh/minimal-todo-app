@@ -14,7 +14,7 @@ export const ToggleStepMutationDocument = gql`
 `;
 
 export const ToggleStepMutation = ({ children, ...rest }) => (
-  <Mutation mutation={ToggleStepMutation} {...rest}>
+  <Mutation mutation={ToggleStepMutationDocument} {...rest}>
     {children}
   </Mutation>
 );

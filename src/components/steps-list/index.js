@@ -1,16 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { Mutation } from "react-apollo";
 
-import { ToggleStepMutationDocument } from "~/components/toggle-step-mutation";
+import { ToggleStepMutation } from "~/components/toggle-step-mutation";
 import { GetTaskQueryDocument } from "~/components/get-task-query";
 import { StepItem } from "~/components/step-item";
+import { DeleteStepMutation } from "~/components/delete-step-mutation";
 
 export const StepsList = ({ steps, taskId }) =>
   steps.map(step => (
-    <Mutation
+    <ToggleStepMutation
       key={step.id}
-      mutation={ToggleStepMutationDocument}
       optimisticResponse={{
         __typename: "Mutation",
         toggleStep: {
@@ -53,12 +52,48 @@ export const StepsList = ({ steps, taskId }) =>
       }}
     >
       {toggleStepMutation => (
-        <StepItem
-          step={step}
-          onToggleStep={stepId => toggleStepMutation({ variables: { id: stepId } })}
-        />
+        <DeleteStepMutation
+          optimisticResponse={{
+            __typename: "Mutation",
+            deleteStep: {
+              id: step.id,
+              __typename: "Step",
+            },
+          }}
+          update={(proxy, { data: { deleteStep } }) => {
+            const prevData = proxy.readQuery({
+              query: GetTaskQueryDocument,
+              variables: {
+                id: taskId,
+              },
+            });
+
+            proxy.writeQuery({
+              query: GetTaskQueryDocument,
+              variables: {
+                id: taskId,
+              },
+              data: {
+                getTask: {
+                  ...prevData.getTask,
+                  steps: prevData.getTask.steps.filter(
+                    filteringStep => filteringStep.id !== deleteStep.id,
+                  ),
+                },
+              },
+            });
+          }}
+        >
+          {deleteStepMutation => (
+            <StepItem
+              step={step}
+              onToggle={stepId => toggleStepMutation({ variables: { id: stepId } })}
+              onDelete={stepId => deleteStepMutation({ variables: { id: stepId } })}
+            />
+          )}
+        </DeleteStepMutation>
       )}
-    </Mutation>
+    </ToggleStepMutation>
   ));
 
 StepsList.propTypes = {
