@@ -13,6 +13,7 @@ import {
   Left,
   Body,
   View,
+  Input,
 } from "native-base";
 import moment from "moment";
 import { gql } from "apollo-boost";
@@ -51,6 +52,16 @@ const GetTaskQueryDocument = gql`
   }
 `;
 
+const AddStepMutationDocument = gql`
+  mutation addStep($taskId: ID!, $title: String!, $completed: Boolean!) {
+    addStep(taskId: $taskId, title: $title, completed: $completed) {
+      id
+      title
+      completed
+    }
+  }
+`;
+
 const styles = StyleSheet.create({
   completedStep: {
     textDecorationLine: "line-through",
@@ -63,14 +74,47 @@ export class TaskDetailScreen extends React.Component {
     navigation: PropTypes.object.isRequired,
   };
 
+  state = {
+    addingStep: false,
+    stepData: {
+      title: "",
+      completed: false,
+    },
+  };
+
   goToHomeScreen = () => {
     const { navigation } = this.props;
     navigation.navigate("Home");
   };
 
+  onStartAddingStep = () => {
+    this.setState({ addingStep: true });
+  };
+
+  onCancelAddingStep = () => {
+    this.setState({ addingStep: false });
+  };
+
+  onChangeStepTitle = text => {
+    this.setState(({ stepData }) => ({
+      stepData: {
+        ...stepData,
+        title: text,
+      },
+    }));
+  };
+
+  toggleStepStatus = () => {
+    this.setState(({ stepData }) => ({
+      stepData: { ...stepData, completed: !stepData.completed },
+    }));
+  };
+
   render() {
     const { navigation } = this.props;
     const taskId = navigation.getParam("taskId");
+
+    const { addingStep, stepData } = this.state;
 
     return (
       <Query query={GetTaskQueryDocument} variables={{ id: taskId }}>
@@ -118,12 +162,86 @@ export class TaskDetailScreen extends React.Component {
                       </Body>
                     </ListItem>
                   )}
-                  <ListItem>
-                    <Button>
-                      <Icon name="add" />
-                      <Text>Add Step</Text>
-                    </Button>
-                  </ListItem>
+                  <Mutation
+                    mutation={AddStepMutationDocument}
+                    variables={{
+                      taskId,
+                      title: stepData.title,
+                      completed: stepData.completed,
+                    }}
+                    update={(proxy, { data: { addStep } }) => {
+                      this.setState({
+                        addingStep: false,
+                        stepData: { title: "", completed: false },
+                      });
+
+                      const prevData = proxy.readQuery({
+                        query: GetTaskQueryDocument,
+                        variables: {
+                          id: taskId,
+                        },
+                      });
+
+                      const updatedData = {
+                        ...prevData.getTask,
+                        steps: [addStep, ...prevData.getTask.steps],
+                      };
+
+                      proxy.writeQuery({
+                        query: GetTaskQueryDocument,
+                        variables: {
+                          id: taskId,
+                        },
+                        data: {
+                          getTask: updatedData,
+                        },
+                      });
+                    }}
+                  >
+                    {addStepMutation => (
+                      <>
+                        <ListItem>
+                          {(addingStep && (
+                            <>
+                              <Button
+                                disabled={!stepData.title}
+                                style={{ marginRight: 10 }}
+                                onPress={() => addStepMutation()}
+                              >
+                                <Text>Done</Text>
+                              </Button>
+                              <Button dark onPress={this.onCancelAddingStep}>
+                                <Text>Cancel</Text>
+                              </Button>
+                            </>
+                          )) || (
+                            <Button onPress={this.onStartAddingStep}>
+                              <Icon name="add" />
+                              <Text>Add Step</Text>
+                            </Button>
+                          )}
+                        </ListItem>
+                        {addingStep && (
+                          <ListItem icon>
+                            <Left>
+                              {stepData.completed ? (
+                                <Icon onPress={this.toggleStepStatus} name="checkmark-circle" />
+                              ) : (
+                                <Icon onPress={this.toggleStepStatus} name="radio-button-off" />
+                              )}
+                            </Left>
+                            <Body>
+                              <Input
+                                value={stepData.title}
+                                placeholder="Enter step title here"
+                                onChangeText={this.onChangeStepTitle}
+                              />
+                            </Body>
+                          </ListItem>
+                        )}
+                      </>
+                    )}
+                  </Mutation>
                   {task.steps &&
                     task.steps.map(step => (
                       <ListItem key={step.id} icon>
@@ -137,7 +255,7 @@ export class TaskDetailScreen extends React.Component {
                               completed: !step.completed,
                             },
                           }}
-                          update={(proxy, { data: { toggleStep, ...rest } }) => {
+                          update={(proxy, { data: { toggleStep } }) => {
                             const prevData = proxy.readQuery({
                               query: GetTaskQueryDocument,
                               variables: {
