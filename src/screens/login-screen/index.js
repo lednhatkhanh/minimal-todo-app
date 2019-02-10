@@ -10,7 +10,8 @@ const LoginScreenView = ({ navigation, client }) => (
   <LoginMutation
     onCompleted={async loginData => {
       await AsyncStorage.setItem("token", loginData.login.token);
-      await client.resetStore();
+      client.cache.reset();
+      await client.reFetchObservableQueries();
       navigation.navigate("Home");
     }}
   >

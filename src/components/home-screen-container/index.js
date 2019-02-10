@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { AsyncStorage } from "react-native";
-import { View, Text, Container, Button, Icon, ActionSheet, Content } from "native-base";
+import { View, Text, Container, Button, Icon, ActionSheet } from "native-base";
 
 import { TasksList } from "~/components/tasks-list/tasks-list";
 import { FloatButton } from "~/components/float-button";
@@ -72,10 +72,9 @@ export class HomeScreenContainer extends React.PureComponent {
                   async buttonIndex => {
                     if (MenuButtons[buttonIndex] === "Logout") {
                       await AsyncStorage.removeItem("token");
-
-                      client.resetStore().then(() => {
-                        navigation.navigate("Login");
-                      });
+                      client.cache.reset();
+                      await client.reFetchObservableQueries();
+                      navigation.navigate("Login");
                     }
                   },
                 );
