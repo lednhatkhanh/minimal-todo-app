@@ -11,6 +11,11 @@ export const AddTaskMutationDocument = gql`
       owner {
         id
       }
+      steps {
+        id
+        title
+        completed
+      }
       color
       due
       notification
