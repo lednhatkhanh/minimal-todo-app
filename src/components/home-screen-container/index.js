@@ -33,7 +33,7 @@ export class HomeScreenContainer extends React.PureComponent {
 
   goToTaskDetailScreen = task => {
     const { navigation } = this.props;
-    navigation.navigate("TaskDetail", { task });
+    navigation.navigate("TaskDetail", { taskId: task.id });
   };
 
   render() {
