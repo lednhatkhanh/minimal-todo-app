@@ -1,5 +1,4 @@
 import React from "react";
-import { StyleSheet } from "react-native";
 import PropTypes from "prop-types";
 import {
   Container,
@@ -15,29 +14,11 @@ import {
   View,
 } from "native-base";
 import moment from "moment";
-import { gql } from "apollo-boost";
 
 import { AppHeader } from "~/components/app-header";
-import { Mutation } from "react-apollo";
-import { GetTaskQuery, GetTaskQueryDocument } from "~/components/get-task-query";
+import { GetTaskQuery } from "~/components/get-task-query";
 import { AddStep } from "~/components/add-step";
-
-export const ToggleStepMutationDocument = gql`
-  mutation ToggleStep($id: ID!) {
-    toggleStep(id: $id) {
-      id
-      title
-      completed
-    }
-  }
-`;
-
-const styles = StyleSheet.create({
-  completedStep: {
-    textDecorationLine: "line-through",
-    color: "#ccc",
-  },
-});
+import { StepsList } from "~/components/steps-list";
 
 export class TaskDetailScreen extends React.Component {
   static propTypes = {
@@ -100,75 +81,7 @@ export class TaskDetailScreen extends React.Component {
                     </ListItem>
                   )}
                   <AddStep taskId={taskId} />
-                  {task.steps &&
-                    task.steps.map(step => (
-                      <ListItem key={step.id} icon>
-                        <Mutation
-                          mutation={ToggleStepMutationDocument}
-                          optimisticResponse={{
-                            __typename: "Mutation",
-                            toggleStep: {
-                              ...step,
-                              __typename: "Step",
-                              completed: !step.completed,
-                            },
-                          }}
-                          update={(proxy, { data: { toggleStep } }) => {
-                            const prevData = proxy.readQuery({
-                              query: GetTaskQueryDocument,
-                              variables: {
-                                id: taskId,
-                              },
-                            });
-
-                            const updatedData = {
-                              ...prevData.getTask,
-                              steps: prevData.getTask.steps.map(singleStep => {
-                                if (singleStep.id === toggleStep.id) {
-                                  return {
-                                    ...singleStep,
-                                    completed: toggleStep.completed,
-                                  };
-                                }
-
-                                return singleStep;
-                              }),
-                            };
-
-                            proxy.writeQuery({
-                              query: GetTaskQueryDocument,
-                              variables: {
-                                id: taskId,
-                              },
-                              data: {
-                                getTask: updatedData,
-                              },
-                            });
-                          }}
-                        >
-                          {toggleStepMutation => (
-                            <Left>
-                              {step.completed ? (
-                                <Icon
-                                  onPress={() => toggleStepMutation({ variables: { id: step.id } })}
-                                  name="checkmark-circle"
-                                />
-                              ) : (
-                                <Icon
-                                  onPress={() => toggleStepMutation({ variables: { id: step.id } })}
-                                  name="radio-button-off"
-                                />
-                              )}
-                            </Left>
-                          )}
-                        </Mutation>
-                        <Body>
-                          <Text style={step.completed ? styles.completedStep : undefined}>
-                            {step.title}
-                          </Text>
-                        </Body>
-                      </ListItem>
-                    ))}
+                  <StepsList steps={task.steps} taskId={task.id} />
                 </List>
               </Content>
             </Container>
